@@ -2,9 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { ExternalLink, ArrowLeft } from 'lucide-react';
+import { ExternalLink, ArrowLeft, X, CheckCircle, Shield } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { GradientText } from '../gradient-text';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 const projects = [
   {
@@ -39,13 +46,25 @@ const projects = [
   },
   {
     id: 4,
-    title: 'Slack',
+    title: 'Secure Elections',
     category: 'E-commerce',
     service: 'saas-development',
-    image: '/portfolio-slack.jpg',
-    tech: ['React', 'Node.js', 'WebSockets'],
-    link: 'https://slack.com',
-    description: 'Team collaboration platform with channels and integrations.',
+    image: '/portfolio-secure-elections.jpg',
+    tech: ['Java', 'Swing', 'Oracle SQL'],
+    link: '#secure-elections',
+    description: 'A secure voting system with one-vote-per-election integrity.',
+    tagline: 'One person. One vote. One source of truth.',
+    categoryTag: 'Civic Tech',
+    overview: 'A desktop-based voting system that digitizes the full election workflow including voter registration, candidate management, secure vote casting, and result tallying with complete auditability.',
+    features: [
+      'Voter registration with CNIC verification',
+      'Admin authentication system',
+      'Election and candidate management',
+      'Secure vote casting (no duplicate votes)',
+      'Audit-ready vote tracking',
+      'Result tally system'
+    ],
+    highlight: 'Enforces UNIQUE(VoterID, ElectionID) to guarantee one vote per election and maintain data integrity.',
   },
   {
     id: 5,
@@ -71,11 +90,22 @@ const projects = [
 
 const categories = ['All', 'Web', 'Design', 'E-commerce', 'Marketing'];
 
+type Project = typeof projects[0];
+
 export function PortfolioSection() {
   const searchParams = useSearchParams();
   const serviceFilter = searchParams.get('service');
   
   const [activeCategory, setActiveCategory] = useState('All');
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleProjectClick = (project: Project) => {
+    if (project.features) {
+      setSelectedProject(project);
+      setIsModalOpen(true);
+    }
+  };
 
   useEffect(() => {
     if (serviceFilter) {
@@ -143,20 +173,38 @@ export function PortfolioSection() {
           {filteredProjects.map((project, index) => (
             <div
               key={project.id}
-              className="group glass-accent rounded-lg overflow-hidden animate-scale-in hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] hover:-translate-y-2 border-purple-500/30"
+              onClick={() => handleProjectClick(project)}
+              className={`group glass-accent rounded-lg overflow-hidden animate-scale-in hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] hover:-translate-y-2 border-purple-500/30 ${project.features ? 'cursor-pointer' : ''}`}
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               {/* Image */}
               <div className="relative h-48 md:h-64 overflow-hidden bg-gradient-to-br from-cyan-400/20 to-purple-500/20">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <p className="text-white/50 text-sm">Project Preview</p>
-                </div>
+                {project.title === 'Secure Elections' ? (
+                  <Image
+                    src={project.image}
+                    alt={project.title}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <p className="text-white/50 text-sm">Project Preview</p>
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                {project.categoryTag && (
+                  <div className="absolute top-4 left-4 bg-cyan-500/20 text-cyan-400 text-xs px-3 py-1 rounded-full border border-cyan-500/30">
+                    {project.categoryTag}
+                  </div>
+                )}
               </div>
 
               {/* Content */}
               <div className="p-6">
                 <h3 className="text-lg md:text-xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">{project.title}</h3>
+                {project.tagline && (
+                  <p className="text-cyan-400/80 text-xs italic mb-2">{project.tagline}</p>
+                )}
                 <p className="text-gray-400 text-sm mb-3">{project.description}</p>
                 <div className="flex flex-wrap gap-2 mb-4">
                   {project.tech.map((t) => (
@@ -168,14 +216,26 @@ export function PortfolioSection() {
                     </span>
                   ))}
                 </div>
-                <a
-                  href={project.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-cyan-400 hover:text-purple-400 transition-all duration-300 group-hover:translate-x-1"
-                >
-                  View Live <ExternalLink size={16} />
-                </a>
+                {project.features ? (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleProjectClick(project);
+                    }}
+                    className="inline-flex items-center gap-2 text-cyan-400 hover:text-purple-400 transition-all duration-300 group-hover:translate-x-1"
+                  >
+                    View Details <ExternalLink size={16} />
+                  </button>
+                ) : (
+                  <a
+                    href={project.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-cyan-400 hover:text-purple-400 transition-all duration-300 group-hover:translate-x-1"
+                  >
+                    View Live <ExternalLink size={16} />
+                  </a>
+                )}
               </div>
             </div>
           ))}
@@ -187,6 +247,84 @@ export function PortfolioSection() {
           </div>
         )}
       </div>
+
+      {/* Project Detail Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-2xl bg-gray-900/95 border-purple-500/30 text-white max-h-[90vh] overflow-y-auto">
+          {selectedProject && (
+            <>
+              <DialogHeader>
+                <div className="flex items-center gap-3 mb-2">
+                  <Shield className="w-8 h-8 text-cyan-400" />
+                  <div>
+                    <DialogTitle className="text-2xl font-bold text-white">
+                      {selectedProject.title}
+                    </DialogTitle>
+                    {selectedProject.tagline && (
+                      <p className="text-cyan-400 text-sm italic mt-1">{selectedProject.tagline}</p>
+                    )}
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <div className="space-y-6 mt-4">
+                {/* Category Tag */}
+                {selectedProject.categoryTag && (
+                  <div className="inline-block bg-cyan-500/20 text-cyan-400 text-xs px-3 py-1 rounded-full border border-cyan-500/30">
+                    {selectedProject.categoryTag}
+                  </div>
+                )}
+
+                {/* Overview */}
+                {selectedProject.overview && (
+                  <div>
+                    <h4 className="text-lg font-semibold text-white mb-2">Overview</h4>
+                    <p className="text-gray-300 leading-relaxed">{selectedProject.overview}</p>
+                  </div>
+                )}
+
+                {/* Key Features */}
+                {selectedProject.features && (
+                  <div>
+                    <h4 className="text-lg font-semibold text-white mb-3">Key Features</h4>
+                    <ul className="space-y-2">
+                      {selectedProject.features.map((feature, idx) => (
+                        <li key={idx} className="flex items-start gap-3">
+                          <CheckCircle className="w-5 h-5 text-cyan-400 mt-0.5 flex-shrink-0" />
+                          <span className="text-gray-300">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Tech Stack */}
+                <div>
+                  <h4 className="text-lg font-semibold text-white mb-3">Tech Stack</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedProject.tech.map((t) => (
+                      <span
+                        key={t}
+                        className="text-sm bg-purple-500/20 text-purple-400 px-4 py-2 rounded-full border border-purple-500/30"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Highlight */}
+                {selectedProject.highlight && (
+                  <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-4">
+                    <h4 className="text-md font-semibold text-cyan-400 mb-2">Technical Highlight</h4>
+                    <p className="text-gray-300 text-sm leading-relaxed">{selectedProject.highlight}</p>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

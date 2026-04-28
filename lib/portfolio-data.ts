@@ -7,6 +7,11 @@ export interface PortfolioProject {
   tech: string[];
   link: string;
   image?: string;
+  tagline?: string;
+  category?: string;
+  overview?: string;
+  features?: string[];
+  highlight?: string;
 }
 
 export interface ServicePortfolio {
@@ -374,10 +379,22 @@ export const portfolioData: Record<string, ServicePortfolio> = {
     projects: [
       {
         id: 'saas-1',
-        title: 'Slack',
-        description: 'Team collaboration platform with channels, integrations, and workflows.',
-        tech: ['React', 'Node.js', 'Electron', 'WebSockets'],
-        link: 'https://slack.com'
+        title: 'Secure Elections',
+        description: 'A secure voting system built with Java and Oracle SQL to manage voters, candidates, and elections with strict one-vote-per-election integrity.',
+        tech: ['Java', 'Swing', 'Oracle SQL', 'JDBC'],
+        link: '#secure-elections',
+        tagline: 'One person. One vote. One source of truth.',
+        category: 'Civic Tech',
+        overview: 'A desktop-based voting system that digitizes the full election workflow including voter registration, candidate management, secure vote casting, and result tallying with complete auditability.',
+        features: [
+          'Voter registration with CNIC verification',
+          'Admin authentication system',
+          'Election and candidate management',
+          'Secure vote casting (no duplicate votes)',
+          'Audit-ready vote tracking',
+          'Result tally system'
+        ],
+        highlight: 'Enforces UNIQUE(VoterID, ElectionID) to guarantee one vote per election and maintain data integrity.'
       },
       {
         id: 'saas-2',
