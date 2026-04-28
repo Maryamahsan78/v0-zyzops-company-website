@@ -1,0 +1,122 @@
+
+
+PROJECT PORTFOLIO  /  2026
+Voting System
+// secure.elections
+A Java + Oracle SQL desktop application for managing
+voters, candidates, elections and ballot integrity.
+JAVASWING UIJDBCORACLE SQLDESKTOP
+DOMAIN
+Civic Tech / Elections
+STACK
+Java • Swing • JDBC • Oracle
+ROLE
+Full-stack Developer
+STATUS
+v1.0  shipped
+
+// VOTING_SYSTEM01 / OVERVIEW
+01
+Project Overview
+The Voting System is a desktop application built with 
+Java Swing for the frontend and 
+Oracle SQL as the backing database.
+It digitizes the end-to-end electoral workflow:
+registering voters with CNIC verification, listing
+candidates per election, casting ballots with strict
+one-vote-per-election integrity, and producing
+auditable tallies for administrators.
+DESIGN PRINCIPLE
+One person.
+One vote.
+One source
+of truth.
+DATA INTEGRITY
+Foreign keys, UNIQUE constraints,
+and atomic vote transactions.
+SWING UI
+Forms, tables and dashboards built
+with Java Swing components.
+ORACLE BACKEND
+Normalized 6-entity schema with
+CNIC and admin authentication.
+6
+ENTITIES
+1:1
+VOTE RULE
+4
+MODULES
+100%
+AUDITABLE
+Java • Swing • JDBC • Oracle SQL02 / 05
+
+// VOTING_SYSTEM02 / FEATURES
+02
+Core Features
+01Voter Registration
+Register voters with CNIC, age, address, and
+assigned polling location.
+02Admin Authentication
+Dedicated Admin entity with username/password
+to manage elections.
+03Election Management
+Create elections with title, type and date; attach
+eligible candidates.
+04Candidate Listing
+Candidates linked to elections with party affiliation
+and unique IDs.
+05Secure Vote Casting
+Atomic vote insert with UNIQUE(VoterID,
+ElectionID) — no double voting.
+06Polling Locations
+Voters mapped to a Location (region + station) for
+jurisdictional control.
+07Audit-Ready Records
+Every vote stamped with VoteDate; full referential
+integrity preserved.
+08Result Tally
+Aggregate vote counts per candidate per election
+via SQL queries.
+Java • Swing • JDBC • Oracle SQL03 / 05
+
+// VOTING_SYSTEM03 / DATA MODEL
+03
+ER Diagram
+Six entities — Location, Voter, Election, Candidate, Vote, Admin —
+modeled with strict relational constraints in Oracle SQL.
+KEY CONSTRAINT
+UNIQUE (VoterID, ElectionID)  →  one voter can cast at most one vote per election.
+CNIC is UNIQUE on Voter; Admin credentials isolated; all FKs cascade-safe.
+Java • Swing • JDBC • Oracle SQL04 / 05
+
+// VOTING_SYSTEM04 / TECH STACK
+04
+Stack & Architecture
+TECHNOLOGY
+LANGUAGE
+Java (JDK 8+)
+UI
+Java Swing
+DB DRIVER
+JDBC
+DATABASE
+Oracle SQL
+SCHEMA
+6 entities, 3NF
+AUTH
+Admin table (hashed)
+BUILD
+Manual / IDE
+ARCHITECTURE
+Presentation Layer
+Java Swing forms, tables & dialogs
+Application Layer
+Java classes — voter / election / vote logic
+Data Layer
+JDBC → Oracle SQL (6 normalized tables)
+// vote_insert.sql
+INSERT INTO Vote (VoteID, VoterID, CandidateID, ElectionID, VoteDate)
+VALUES (vote_seq.NEXTVAL, :voter, :cand, :election, SYSDATE);
+-- enforced by:  UNIQUE (VoterID, ElectionID)
+-- ensures:      one ballot per voter per election
+Java • Swing • JDBC • Oracle SQL05 / 05
